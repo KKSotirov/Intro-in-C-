@@ -74,6 +74,7 @@ int checkColSums(int matrix[][DIMENSIONS])
 
     return firstColSum;
 }
+
 int calcCurrentSubMatrix(int currMatrix[][DIMENSIONS], const size_t currRow, const size_t currCol)
 {
     int currSubMatrixSum = 0;
