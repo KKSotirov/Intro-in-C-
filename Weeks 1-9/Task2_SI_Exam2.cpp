@@ -12,6 +12,18 @@ void innitMatrix(char matrix[][MAX_MATRIX_SIZE], const size_t size)
     }
 }
 
+void printMatrix(char matrix[][MAX_MATRIX_SIZE], const size_t size)
+{
+    for (size_t i = 0; i < size; i++)
+    {
+        for (size_t j = 0; j < size; j++)
+        {
+            std::cout << matrix[i][j] << "  ";
+        }
+        std::cout << std::endl;
+    }
+}
+
 void rotateIndexes(char matrix[][MAX_MATRIX_SIZE], const size_t size)
 {
     char temp[MAX_MATRIX_SIZE][MAX_MATRIX_SIZE];
@@ -19,7 +31,7 @@ void rotateIndexes(char matrix[][MAX_MATRIX_SIZE], const size_t size)
     {
         for (size_t j = 0; j < size; j++)
         {
-            temp[i][j] = matrix[j][size - 1 - i];
+            temp[i][j] = matrix[size - 1 - j][i];
         }
     }
 
@@ -55,6 +67,8 @@ int main()
     std::cin >> matrix_dimensions;
 
     char matrix[MAX_MATRIX_SIZE][MAX_MATRIX_SIZE];
-
+    innitMatrix(matrix, matrix_dimensions);
+    rotateMatrix(matrix, matrix_dimensions, number_rotations);
+    printMatrix(matrix, matrix_dimensions);
     return 0;
 }
