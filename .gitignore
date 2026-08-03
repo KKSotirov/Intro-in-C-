@@ -1,0 +1,22 @@
+# Executables (Компилирани изпълними файлове)
+*.exe
+*.out
+*.app
+*.elf
+
+# Object & Library files (Временни файлове от компилацията)
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+
+# Visual Studio Code cache / history
+.vscode/*.log
+.vscode/.history/
+
+# OS temporary files
+Thumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
