@@ -94,7 +94,6 @@ void toCapLetters(char *&str)
 {
     unsigned size = strlen(str);
     int asciiDist = 'a' - 'A';
-    // if A is smaller as ASCII value, we subtract on row 101, so it works fine regardless
     for (size_t i = 0; i < size; i++)
     {
         if (isLowerLetter(str[i]))
@@ -164,17 +163,16 @@ void flipStr(char *&str)
     unsigned size = strlen(str);
     char *temp = new char[size + 1];
 
-    char *src = str + size - 1; // sets the pointer of the original string at the end
-    char *dest = temp;          // helps us not move the temp pointer
+    char *src = str + size - 1;
+    char *dest = temp;
 
-    // filling temp backwards
     while (src >= str)
     {
         *dest = *src;
         dest++;
         src--;
     }
-    *dest = '\0'; // !
+    *dest = '\0';
 
     src = str;
     dest = temp;
@@ -185,7 +183,7 @@ void flipStr(char *&str)
         dest++;
     }
 
-    delete[] temp; // Чистим оригиналния указател на temp без никакво изместване!
+    delete[] temp;
 }
 
 bool isPalindrome(char *&str)
@@ -205,8 +203,8 @@ bool isPalindrome(char *&str)
             reversedPtr--;
         }
     }
-    copyPtr = nullptr;
-    reversedPtr = nullptr;
+
+    // Премахнати са delete copyPtr; и delete reversedPtr; (причиняваха crash)
     return true;
 }
 
@@ -215,47 +213,116 @@ bool isLetter(const char ch)
     return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z');
 }
 
+// Помощна функция: Сравнява две думи по диапазони [start, end)
+bool areWordsEqual(const char *s1, const char *e1, const char *s2, const char *e2)
+{
+    if ((e1 - s1) != (e2 - s2))
+        return false;
+
+    while (s1 < e1)
+    {
+        char c1 = (*s1 >= 'A' && *s1 <= 'Z') ? (*s1 + ('a' - 'A')) : *s1;
+        char c2 = (*s2 >= 'A' && *s2 <= 'Z') ? (*s2 + ('a' - 'A')) : *s2;
+
+        if (c1 != c2)
+            return false;
+
+        s1++;
+        s2++;
+    }
+    return true;
+}
+
+// Помощна функция: Извлича следващата дума [start, end)
+bool getNextWord(const char *&ptr, const char *&start, const char *&end)
+{
+    while (*ptr && !isLetter(*ptr))
+        ptr++;
+
+    if (!*ptr)
+        return false;
+
+    start = ptr;
+    while (*ptr && isLetter(*ptr))
+        ptr++;
+
+    end = ptr;
+    return true;
+}
+
 char *mostUsedWord(char *&str)
 {
-    unsigned size = strlen(str);
-    int timesEachWordFound[countWords(str) + 1] = {0};
-    // 1 pass -> count every word
-    // 2 pass -> get the most frequent one
-    char *ptrCopy = str;
-    char *tempWordHolder = new char[size + 1];
-    for (size_t i = 0; i < size; i++)
-    {
-        if (isLetter(ptrCopy[i]))
-        {
-            // first compare if word had already been copied, then if not -> copy it
-            for (size_t j = 0; j < size; j++)
-            {
-                while (ptrCopy[j] == *tempWordHolder)
-                    ... // тук искам да направя проверка дали думата вече е била копирана в контейнера ни с отделни думи, ако вече я има там, то тя значи се среща повторно, някак си намирам индекса на тази дума и добавям в масива с брой срещания +1
-            }
+    if (!str || *str == '\0')
+        return nullptr;
 
-            while (isLetter(ptrCopy[i]))
+    const char *bestStart = nullptr;
+    const char *bestEnd = nullptr;
+    int maxCount = 0;
+
+    const char *ptr1 = str;
+    const char *start1 = nullptr;
+    const char *end1 = nullptr;
+
+    while (getNextWord(ptr1, start1, end1))
+    {
+        int currentCount = 0;
+        const char *ptr2 = str;
+        const char *start2 = nullptr;
+        const char *end2 = nullptr;
+
+        while (getNextWord(ptr2, start2, end2))
+        {
+            if (areWordsEqual(start1, end1, start2, end2))
             {
-                *tempWordHolder = ptrCopy[i];
-                i++;
+                currentCount++;
             }
         }
+
+        if (currentCount > maxCount)
+        {
+            maxCount = currentCount;
+            bestStart = start1;
+            bestEnd = end1;
+        }
     }
+
+    if (!bestStart || !bestEnd)
+        return nullptr;
+
+    size_t len = bestEnd - bestStart;
+    char *result = new char[len + 1];
+
+    for (size_t i = 0; i < len; i++)
+    {
+        result[i] = bestStart[i];
+    }
+    result[len] = '\0';
+
+    return result;
 }
 
 int main()
 {
-    // std::cout << "Please enter array: " << std::endl;
     const char *sourceText1 = "There is no war in Ba Sing Se";
     const char *sourceText2 = ", and there is no inflation since adopting the Euro";
     char *testString = nullptr;
+
     strcpy(testString, sourceText1);
     removeSpaces(testString);
     toCapLetters(testString);
     printMatrix(testString);
+
     strcat(sourceText1, sourceText2, testString);
     printMatrix(testString);
     std::cout << "Word count = " << countWords(testString) << std::endl;
+
+    // Намиране и отпечатване на най-честата дума
+    char *mostUsed = mostUsedWord(testString);
+    if (mostUsed)
+    {
+        std::cout << "Most used word: " << mostUsed << std::endl;
+        delete[] mostUsed;
+    }
 
     const char *palindomeText = "ABCBA";
     strcpy(testString, palindomeText);
@@ -263,6 +330,7 @@ int main()
         std::cout << "Yes, the string: [" << testString << "]  is a palindrome!" << std::endl;
     else
         std::cout << "No, the string: [" << testString << "]  is not a palindrome!" << std::endl;
+
     std::cout << "Word count = " << countWords(testString) << std::endl;
     free(testString);
 
