@@ -6,11 +6,12 @@ int strlen(const char *str)
     while (*str)
     {
         size++;
+        str++;
     }
     return size;
 }
 
-void strcpy(char *dest, const char *src)
+void strcpy(char *&dest, const char *&src)
 {
     delete[] dest;
     dest = new char[strlen(src) + 1];
@@ -18,9 +19,10 @@ void strcpy(char *dest, const char *src)
     {
         dest[i] = src[i];
     }
+    dest[strlen(src)] = '\0';
 }
 
-void strcat(const char *str1, const char *str2, char *resultArray)
+void strcat(const char *str1, const char *str2, char *&resultArray)
 {
     delete[] resultArray;
     resultArray = new char[strlen(str1) + strlen(str2) + 1];
@@ -32,23 +34,26 @@ void strcat(const char *str1, const char *str2, char *resultArray)
     {
         resultArray[j + strlen(str1)] = str2[j];
     }
+    resultArray[strlen(str1) + strlen(str2)] = '\0';
 }
 
 int strcmp(const char *str1, const char *str2)
 {
-    unsigned size = strlen(str1) > strlen(str2) ? strlen(str1) : strlen(str2);
+    unsigned size = strlen(str1) > strlen(str2) ? strlen(str2) : strlen(str1);
     int cmpValue = 0;
     for (size_t i = 0; i < size; i++)
     {
-        if (str1[i] - NULL > str2[i] - NULL)
+        if (str1[i] > str2[i])
         {
             cmpValue = 1;
             std::cout << "The first string is bigger" << std::endl;
+            return cmpValue;
         }
-        else if (str1[i] - NULL < str2[i] - NULL)
+        else if (str1[i] < str2[i])
         {
             cmpValue = -1;
             std::cout << "The second string is bigger" << std::endl;
+            return cmpValue;
         }
     }
     return cmpValue;
@@ -56,16 +61,17 @@ int strcmp(const char *str1, const char *str2)
 
 int pow(int num, const int degree)
 {
+    int result = 1;
     for (size_t i = 0; i < degree; i++)
     {
-        num = num * num;
+        result *= num;
     }
-    return num;
+    return result;
 }
 
 int parseToInt(const char *str)
 {
-    int intValue;
+    int intValue = 0;
     unsigned helper = 10;
     for (size_t i = strlen(str); i > 0; i--)
     {
@@ -76,6 +82,7 @@ int parseToInt(const char *str)
 
 int main()
 {
+    std::cout << "Please enter array: " << std::endl;
 
     return 0;
 }
