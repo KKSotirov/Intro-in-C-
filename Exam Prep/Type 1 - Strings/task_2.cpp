@@ -47,51 +47,44 @@ int charToInt(const char ch)
 
 int calculateSum(const char *str)
 {
-    bool hasNumbs = false;
-    int sum = -1;
-    unsigned consequtiveNumbers = 0;
+    unsigned totalSum = 0;
+    bool foundAny = false;
+    unsigned currNumber;
     const char *ptr = str;
     while (*ptr)
     {
-        while (isNum(*ptr))
+        if (isNum(*ptr))
         {
-            hasNumbs = true;
-            std::cout << std::endl;
-            consequtiveNumbers++;
-            ptr++;
-        }
-        if (consequtiveNumbers != 0)
-        {
-            // we have just ended reading a series of numbers
-            ptr -= consequtiveNumbers;
-            // bring the pointer back and start multiplying
+            foundAny = true;
+            currNumber = 0;
             while (isNum(*ptr))
             {
-                sum += charToInt(*ptr) * pow(10, consequtiveNumbers - 1);
-                consequtiveNumbers--;
+                currNumber = currNumber * 10 + charToInt(*ptr);
                 ptr++;
             }
-            consequtiveNumbers = 0;
+            totalSum += currNumber;
         }
-        ptr++;
+        else
+            ptr++;
     }
-    if (hasNumbs)
-        sum++;
-    return sum;
+    if (foundAny == false)
+        return -1;
+    return totalSum;
 }
 
 int main()
 {
     std::cout << "Send Help 0_0" << std::endl;
-    const char *testStr1 = "50J3o50kere17IAzSumLud!1730";
+    const char *testStr1 = "5J3o5kere17IAzSumLud!173";
     const char *testStr2 = "JokereIAzSumLud!";
     char *str = nullptr;
     strcpy(str, testStr1);
-    if (calculateSum(str) == -1)
+    int sum = calculateSum(str);
+    if (sum == -1)
     {
         std::cout << "There are no numbers in the string!!!" << std::endl;
         return 0;
     }
-    std::cout << "The sum is: " << calculateSum(str);
+    std::cout << "The sum is: " << sum;
     delete[] str;
 }
