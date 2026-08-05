@@ -11,90 +11,65 @@ unsigned strlen(const char *str)
     return len;
 }
 
-void strcopy(char *&dest, const char *src)
+void strcpy(char *&dest, const char *src)
 {
     if (!src)
         return;
-    // delete dest;
-    // dest = new char[strlen(src) + 1];
-    unsigned len = strlen(src);
-    char *temp = new char[len + 1];
-    while (*src)
-    {
-        *temp = *src;
-        temp++;
-        src++;
-    }
-    *temp = '\0';
     delete[] dest;
-    dest = temp - len;
+    dest = new char[strlen(src) + 1];
+    for (size_t i = 0; i < strlen(src); i++)
+    {
+        dest[i] = src[i];
+    }
+    dest[strlen(src)] = '\0';
 }
 
-void resize(char *&str)
+void resize(char *&str, unsigned &capacity)
 {
-    char *temp = new char[strlen(str) * 2];
-    strcopy(temp, str);
+    char *temp = new char[capacity * 2];
+    strcpy(temp, str);
+    capacity *= 2;
     delete[] str;
     str = temp;
 }
 
-void setDefaultValues(char *&str)
+int charToInt(const char ch)
 {
-    unsigned len = strlen(str);
-    for (size_t i = 0; i < len; i++)
-    {
-        str[i] = '\0';
-    }
+    return static_cast<int>(ch);
 }
-
 char *returnUnique(const char *str)
 {
-    unsigned len = strlen(str);
-    unsigned capacity = 2;
-    unsigned count = 0;
-    char *helper = new char[capacity];
-    setDefaultValues(helper);
-    int countOccurances[len + 1] = {0};
-    for (size_t i = 0; i < len; i++)
+    if (!str)
+        return nullptr;
+    int countOccurances[256] = {0};
+    const char *ptr = str;
+    while (*ptr)
     {
-        for (size_t j = 0; j < len; j++)
-        {
-            if (count >= capacity)
-                resize(helper);
-            if (str[i] != helper[j] && helper[j] == 'NULL')
-            {
-                helper[j] = str[i];
-                countOccurances[j]++;
-                count++;
-                break; // so we do not fill the whole helper array with the same char
-            }
-            if (str[i] == helper[j])
-            {
-                count++;
-                countOccurances[j]++;
-                break;
-            }
-        }
+        countOccurances[charToInt(*ptr)]++;
+        ptr++;
     }
 
-    // We now have 1 array with every char once, and we have another array keeping how many times each char has been found
-    size_t newSize = 0;
-    for (size_t i = 0; i < count; i++)
+    unsigned size = 0;
+    ptr = str;
+    while (*ptr)
     {
-        if (countOccurances[i] == 1)
-            newSize++;
+        if (countOccurances[charToInt(*ptr)] == 1)
+            size++;
+        ptr++;
     }
-
-    char *uniqueStr = new char[newSize + 1];
-    int pos = 0;
-    for (size_t i = 0; i < count; i++)
+    char *uniqueStr = new char[size + 1];
+    unsigned pos = 0;
+    ptr = str;
+    while (*ptr)
     {
-        if (countOccurances[i] == 1)
+        if (countOccurances[charToInt(*ptr)] == 1)
         {
-            uniqueStr[pos] = helper[i];
+            uniqueStr[pos] = *ptr;
+            pos++;
         }
+        ptr++;
     }
-    delete[] helper;
+    uniqueStr[pos] = '\0';
     return uniqueStr;
 }
 
@@ -110,10 +85,10 @@ void printMatrix(const char *str)
 
 int main()
 {
-    std::cout << "Iskam da se samoubiq" << std::endl;
+    std::cout << "Send Help 0_0" << std::endl;
     const char *testStr = "JokereIAzSumLud!";
     char *str = nullptr;
-    strcopy(str, testStr);
+    strcpy(str, testStr);
     char *amenStr = returnUnique(str);
     printMatrix(amenStr);
 }
