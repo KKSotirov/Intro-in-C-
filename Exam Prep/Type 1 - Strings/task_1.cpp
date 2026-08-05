@@ -91,4 +91,6 @@ int main()
     strcpy(str, testStr);
     char *amenStr = returnUnique(str);
     printMatrix(amenStr);
+
+    delete[] str;
 }
