@@ -73,7 +73,7 @@ char *returnUnique(const char *str)
     return uniqueStr;
 }
 
-void printMatrix(const char *str)
+void printStr(const char *str)
 {
     while (*str)
     {
@@ -90,7 +90,7 @@ int main()
     char *str = nullptr;
     strcpy(str, testStr);
     char *amenStr = returnUnique(str);
-    printMatrix(amenStr);
+    printStr(amenStr);
 
     delete[] str;
 }
