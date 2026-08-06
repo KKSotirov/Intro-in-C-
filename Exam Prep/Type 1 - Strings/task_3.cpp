@@ -116,5 +116,6 @@ int main()
     std::cout << "Final print " << std::endl;
     printStr(normalizedStr);
 
+    delete[] normalizedStr;
     return 0;
 }

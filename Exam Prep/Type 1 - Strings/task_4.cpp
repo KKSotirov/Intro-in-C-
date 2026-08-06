@@ -33,7 +33,6 @@ char *returnMirrored(const char *str)
     for (size_t i = 0; i < len; i++)
     {
         mirroredStr[i] = ptr[len - i - 1];
-        // 0 1 2 3 4 '\0'              0    5
     }
     mirroredStr[len] = '\0';
     return mirroredStr;
