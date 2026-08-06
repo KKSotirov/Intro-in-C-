@@ -226,13 +226,16 @@ void transformIntoSentences(char *&str)
     str = newStr;
 }
 
-void normalizeStr(char *&originalStr)
+char *normalizeStr(char *&originalStr)
 {
     removeEdgeIntervals(originalStr);
     compressIntervals(originalStr);
     cutConsecutivePunctuationMarks(originalStr);
     transformIntoSentences(originalStr);
-    // final changes
+    // delete consecutive words
+    // count number of words
+    // length of longest word
+    // return char* to the beginning of the longest word
 }
 
 int main()
