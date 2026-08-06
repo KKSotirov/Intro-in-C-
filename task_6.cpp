@@ -26,6 +26,15 @@ void strcpy(char *&dest, const char *src)
     dest[len] = '\0';
 }
 
+void myStrCopy(char *&dest, const char *src, const unsigned len)
+{
+    for (size_t i = 0; i < len; i++)
+    {
+        dest[i] = src[i];
+    }
+    dest[len] = '\0';
+}
+
 bool isLower(const char ch)
 {
     return (ch >= 'a' && ch <= 'z');
@@ -56,36 +65,41 @@ void toCapitalCase(char &ch)
 
 void removeEdgeIntervals(char *&str)
 {
-    unsigned len = strlen(str);
-    const char *ptr = str;
-    char *helperContainer = new char[len + 1];
-    bool foundLetter = false;
-    unsigned newLen = 0;
-    while (*ptr)
-    {
-        if (isLetter(*ptr))
-            foundLetter = true;
+    if (!str || !*str)
+        return;
 
-        if (foundLetter == false)
-        {
-            while (*ptr == ' ')
-                ptr++;
-        }
-        else
-        {
-            if (*ptr != ' ')
-            {
-                *helperContainer = *ptr;
-                helperContainer++;
-                newLen++;
-                ptr++;
-            }
-        }
+    // Skipping the starting intervals
+    const char *start = str;
+    while (*start && *start == ' ')
+    {
+        start++;
     }
-    helperContainer -= newLen;
+
+    if (!*start) // the whole string is only intervals
+    {
+        delete[] str;
+        str = new char[1];
+        str[0] = '\0';
+        return;
+    }
+
+    // Finding the last symbol that is not an interval
+    const char *end = str + strlen(str) - 1;
+    while (end > start && *end == ' ')
+    {
+        end--;
+    }
+
+    // Calculating newLen and init of newStr
+    unsigned newLen = (end - start) + 1;
     char *newStr = new char[newLen + 1];
-    strcpy(newStr, helperContainer);
-    delete[] helperContainer;
+
+    for (size_t i = 0; i < newLen; i++)
+    {
+        newStr[i] = start[i];
+    }
+    newStr[newLen] = '\0';
+
     delete[] str;
     str = newStr;
 }
@@ -105,22 +119,20 @@ void compressIntervals(char *&str)
                 ptr++;
             }
             *helperContainer = ' ';
-            // helperContainer++;
-            // newLen++;
+            helperContainer++;
+            newLen++;
         }
         else
         {
             *helperContainer = *ptr;
-            // helperContainer++;
-            // newLen++;
+            helperContainer++;
+            newLen++;
+            ptr++;
         }
-        helperContainer++;
-        newLen++;
-        ptr++;
     }
     helperContainer -= newLen;
     char *newStr = new char[newLen + 1];
-    strcpy(newStr, helperContainer);
+    myStrCopy(newStr, helperContainer, newLen);
     delete[] helperContainer;
     delete[] str;
     str = newStr;
@@ -146,15 +158,23 @@ void cutConsecutivePunctuationMarks(char *&str)
                 ptr++;
             }
             *helperContainer = *(ptr - 1); // last consecutive punctuation mark
+            helperContainer++;
+            newLen++;
         }
         else
         {
             *helperContainer = *ptr;
+            ptr++;
+            helperContainer++;
+            newLen++;
         }
-        helperContainer++;
-        newLen++;
-        ptr++;
     }
+    helperContainer -= newLen;
+    char *newStr = new char[newLen + 1];
+    myStrCopy(newStr, helperContainer, newLen);
+    delete[] helperContainer;
+    delete[] str;
+    str = newStr;
 }
 
 void transformIntoSentences(char *&str)
@@ -172,25 +192,47 @@ void transformIntoSentences(char *&str)
             *helperContainer = *ptr;
             toCapitalCase(*helperContainer);
             helperContainer++;
-            ptr++;
             isSentenceStart = false;
             newLen++;
         }
-        if (isSentenceEnd(*ptr))
+        else if (isSentenceEnd(*ptr))
         {
             isSentenceStart = true;
-            cutConsecutivePunctuationMarks(ptr);
+            *helperContainer = *ptr;
+            helperContainer++;
+            newLen++;
         }
 
-        if (isSentenceStart == false && isLetter(*ptr))
+        else if (isSentenceStart == false && isLetter(*ptr))
         {
             *helperContainer = *ptr;
             toLowerCase(*helperContainer);
             helperContainer++;
-            ptr++;
             newLen++;
         }
+        else // here we copy every other type of char, except letters and intervals
+        {
+            *helperContainer = *ptr;
+            helperContainer++;
+            newLen++;
+        }
+        ptr++;
     }
+    helperContainer -= newLen;
+    char *newStr = new char[newLen + 1];
+    myStrCopy(newStr, helperContainer, newLen);
+    delete[] helperContainer;
+    delete[] str;
+    str = newStr;
+}
+
+void normalizeStr(char *&originalStr)
+{
+    removeEdgeIntervals(originalStr);
+    compressIntervals(originalStr);
+    cutConsecutivePunctuationMarks(originalStr);
+    transformIntoSentences(originalStr);
+    // final changes
 }
 
 int main()
