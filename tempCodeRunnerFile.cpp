@@ -300,6 +300,9 @@ unsigned deleteConsecutiveAndCountWords(char *&str)
     setToFirstWord(lastWord, ptr);
     unsigned lastWordLen = strlen(lastWord);
 
+    // Пазим си къде започва първата дума в помощния контейнер
+    char *lastWordStartInHelper = helperContainer;
+
     // Writing the first word in helper container
     for (unsigned i = 0; i < lastWordLen; i++)
     {
@@ -308,7 +311,7 @@ unsigned deleteConsecutiveAndCountWords(char *&str)
         newLen++;
     }
 
-    // Skipping first word (we have already written it in helper container)
+    // Skipping first word
     while (*ptr && !isLetter(*ptr))
         ptr++;
     while (*ptr && isLetter(*ptr))
@@ -339,6 +342,9 @@ unsigned deleteConsecutiveAndCountWords(char *&str)
                 lastWord[wordLen] = '\0';
                 lastWordLen = wordLen;
 
+                // Пазим старта на новата дума в helperContainer
+                lastWordStartInHelper = helperContainer;
+
                 // New word --> to helper container it goes
                 tempWord = wordStart;
                 for (unsigned i = 0; i < wordLen; i++)
@@ -351,16 +357,38 @@ unsigned deleteConsecutiveAndCountWords(char *&str)
             }
             else
             {
-                // duplicate, we skip it
-                // Тъй като интервалът преди тази дублирана дума вече е записан в буфера,
-                // го изтриваме, като върнем контейнера с една позиция назад!
-                helperContainer--;
-                newLen--;
-
+                // Duplicate found: overwrite the previous word in helperContainer with the second one
+                const char *wordStart = ptr;
+                unsigned wordLen = 0;
                 while (*ptr && isLetter(*ptr))
                 {
+                    wordLen++;
                     ptr++;
                 }
+
+                // ВАЖНО: Актуализираме общата дължина спрямо евентуална разлика в дължините на думите
+                newLen += (int)wordLen - (int)lastWordLen;
+
+                // Връщаме се точно в началото на предишната дума в помощния буфер
+                helperContainer = lastWordStartInHelper;
+
+                // Презаписваме я с новата (втора) дума
+                const char *tempWord = wordStart;
+                for (unsigned i = 0; i < wordLen; i++)
+                {
+                    *helperContainer = *tempWord;
+                    helperContainer++;
+                    tempWord++;
+                }
+
+                // Update lastWord to the second (current) word
+                tempWord = wordStart;
+                for (unsigned i = 0; i < wordLen; i++)
+                {
+                    lastWord[i] = tempWord[i];
+                }
+                lastWord[wordLen] = '\0';
+                lastWordLen = wordLen;
             }
         }
         else
