@@ -308,7 +308,7 @@ unsigned deleteConsecutiveAndCountWords(char *&str)
                 }
             else
             {
-                if (isLetter(*(ptr - 1)) && isLetter(*ptr) == false)
+                if (ptr > str && isLetter(*(ptr - 1)) && isLetter(*ptr) == false)
                     countWords++;
                 // there are consecutive words, we just move the pointer onward
                 ptr++;
@@ -320,6 +320,8 @@ unsigned deleteConsecutiveAndCountWords(char *&str)
             ptr++;
         }
     }
+    lastWord -= lastWordLen;
+    delete[] lastWord;
 
     return countWords;
 }
