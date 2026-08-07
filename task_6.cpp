@@ -35,6 +35,16 @@ void myStrCopy(char *&dest, const char *src, const unsigned len)
     dest[len] = '\0';
 }
 
+void printStr(const char *str)
+{
+    while (*str)
+    {
+        std::cout << *str;
+        str++;
+    }
+    std::cout << std::endl;
+}
+
 bool isLower(const char ch)
 {
     return (ch >= 'a' && ch <= 'z');
@@ -225,6 +235,114 @@ void transformIntoSentences(char *&str)
     delete[] str;
     str = newStr;
 }
+char ignoreAllCaps(char ch)
+{
+    if (isLetter(ch))
+    {
+        if (isCapital(ch))
+            toLowerCase(ch);
+    }
+    return ch;
+}
+
+void setToFirstWord(char *&dest, const char *src)
+{
+    unsigned len = 0;
+    while (*src)
+    {
+        if (isLetter(*src))
+        {
+            while (*src && isLetter(*src))
+            {
+                *dest = *src;
+                dest++;
+                src++;
+                len++;
+            }
+        }
+        else
+        {
+            src++;
+        }
+    }
+    dest[len] = '\0';
+    dest -= len; // bringing the pointer back to origin
+}
+
+bool notSameWord(char *last, const char *curr)
+{
+    unsigned len = strlen(last);
+    while (*last)
+    {
+        if (ignoreAllCaps(*last) != (*curr))
+            return true;
+        else
+        {
+            last++;
+            curr++;
+        }
+    }
+    return false;
+}
+
+unsigned deleteConsecutiveAndCountWords(char *&str)
+{
+    unsigned len = strlen(str);
+    const char *ptr = str;
+    char *lastWord = new char[len + 1];
+    setToFirstWord(lastWord, ptr);
+    unsigned lastWordLen = strlen(lastWord);
+    unsigned newLen = 0;
+    unsigned countWords = 1;
+    while (*ptr)
+    {
+        if (isLetter(*ptr))
+        {
+            if (notSameWord(lastWord, ptr))
+                while (isLetter(*ptr))
+                {
+                    *lastWord = *ptr;
+                    lastWordLen++;
+                    ptr++;
+                    newLen++;
+                }
+            else
+            {
+                if (isLetter(*(ptr - 1)) && isLetter(*ptr) == false)
+                    countWords++;
+                // there are consecutive words, we just move the pointer onward
+                ptr++;
+            }
+        }
+        else
+        {
+            // current symbol is not a letter, so we skip it
+            ptr++;
+        }
+    }
+
+    return countWords;
+}
+
+void printWord(char *str)
+{
+    while (*str)
+    {
+        if (isLetter(*str))
+        {
+            while (*str && isLetter(*str))
+            {
+                std::cout << *str;
+                str++;
+            }
+        }
+        else
+        {
+            str++;
+        }
+    }
+    std::cout << std::endl;
+}
 
 char *normalizeStr(char *&originalStr)
 {
@@ -232,10 +350,44 @@ char *normalizeStr(char *&originalStr)
     compressIntervals(originalStr);
     cutConsecutivePunctuationMarks(originalStr);
     transformIntoSentences(originalStr);
-    // delete consecutive words
-    // count number of words
+    unsigned countWords = deleteConsecutiveAndCountWords(originalStr);
     // length of longest word
     // return char* to the beginning of the longest word
+    char *originalStrCpy = originalStr;
+    unsigned maxWordLen = 0;
+    unsigned currWordLen = 0;
+    char *startPosOfLongestWord = nullptr;
+    while (*originalStrCpy)
+    {
+        if (isLetter(*originalStrCpy))
+        {
+            currWordLen = 0; // for every new word, we set its length starting from 0
+            while (*originalStrCpy && isLetter(*originalStrCpy))
+            {
+                currWordLen++;
+                originalStrCpy++;
+            }
+            if (currWordLen > maxWordLen)
+            {
+                maxWordLen = currWordLen;
+                startPosOfLongestWord = (originalStrCpy - currWordLen);
+            }
+        }
+        else
+        {
+            originalStrCpy++;
+        }
+    }
+    // at the end of this while we have:  length of the longest word, and its starting adress
+
+    // PRINT NORMALIZED
+    printStr(originalStr);
+    std::cout << "Number of words in normalized String is = " << countWords << std::endl;
+    std::cout << "The length of the longest word is = " << maxWordLen << std::endl;
+    std::cout << "The longest word is = ";
+    printWord(startPosOfLongestWord);
+
+    return startPosOfLongestWord;
 }
 
 int main()
