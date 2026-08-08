@@ -352,8 +352,7 @@ unsigned deleteConsecutiveAndCountWords(char *&str)
             else
             {
                 // duplicate, we skip it
-                // Тъй като интервалът преди тази дублирана дума вече е записан в буфера,
-                // го изтриваме, като върнем контейнера с една позиция назад!
+                // We have copied an interval in helper container in prev cycle, so we remove it
                 helperContainer--;
                 newLen--;
 
